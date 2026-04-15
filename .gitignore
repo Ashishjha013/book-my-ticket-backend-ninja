@@ -1,8 +1,8 @@
 # Node dependencies
-backend/node_modules/
+src/node_modules/
 
 # Environment secrets
-backend/.env
+src/.env
 
 # Logs
 *.log
