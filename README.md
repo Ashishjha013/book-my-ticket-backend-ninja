@@ -180,11 +180,3 @@ You should see: `{ "status": "ok" }`
 
 If same seat is already booked, you will get status `409`.
 
-## Hackathon Checklist Coverage
-
-- Authentication implementation: Done
-- Protected routes: Done
-- Booking logic correctness: Done
-- Clean code structure: Done
-- Integration with existing code: Done
-- Frontend: Optional (not included)
