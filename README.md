@@ -1,97 +1,88 @@
-# Book My Ticket (Backend Ninja Track)
+# Book My Ticket
 
-Production-style backend extension of the starter code for a simplified Book My Ticket platform.
+This is a backend project for the Backend Ninja hackathon track.
 
-This submission focuses on authentication and protected seat booking flow (backend-first evaluation).
+The main goal is simple:
 
-## Features
+- users can register
+- users can login
+- only logged-in users can book seats
+- same seat cannot be booked two times
 
-- User registration with password hashing
-- User login with JWT token generation
-- Protected booking endpoint using auth middleware
-- Seat booking linked to logged-in user
-- Duplicate seat booking prevention
-- DB bootstrap/migration script for quick setup
+## What This Project Does
 
-## Tech Stack
+- Creates user accounts
+- Logs users in and gives a JWT token
+- Protects booking API with auth middleware
+- Lets users see seats and book a seat
+- Saves which user booked which seat
+
+## Tech Used
 
 - Node.js
-- Express
+- Express.js
 - PostgreSQL
 - bcrypt
-- jsonwebtoken (JWT)
+- JWT (jsonwebtoken)
 
-## Project Structure
+## Folder Structure
 
 ```text
 book-my-show/
-   backend/
-      app.js
-      server.js
-      auth/
-         auth.controller.js
-         auth.middleware.js
-         auth.routes.js
-         auth.service.js
-      booking/
-         booking.controller.js
-         booking.routes.js
-         booking.service.js
-      db/
-         db.js
-         runMigrations.js
-         schema.js
+  src/
+    app.js
+    server.js
+    auth/
+    booking/
+    db/
+    assets/
 ```
 
 ## Database Design
 
-### users
+![Book My Ticket DB Design](src/assets/book-my-show-db.png)
 
-- id (PK)
-- name
-- email (UNIQUE)
-- password
+Tables used:
 
-### seats
+- users
+- seats
+- bookings
 
-- id (PK)
-- seat_number (UNIQUE)
-- is_booked
+Relations:
 
-### bookings
+- bookings.user_id -> users.id
+- bookings.seat_id -> seats.id
 
-- id (PK)
-- user_id (FK -> users.id)
-- seat_id (FK -> seats.id)
-- created_at
+## How Duplicate Booking Is Prevented
 
-Duplicate protection is implemented in two layers:
+- Seat row is locked in transaction (`SELECT ... FOR UPDATE`)
+- A unique index is also used on bookings seat_id
 
-- Transaction + `SELECT ... FOR UPDATE` row lock
-- Unique index on `bookings(seat_id)`
+This means even if two requests come at the same time, only one can win.
 
-## Setup (Local)
+## Setup (Very Easy)
 
-1. Open project folder:
+1. Go to source folder
 
 ```bash
-cd backend
+cd src
 ```
 
-2. Install dependencies:
+2. Install packages
 
 ```bash
 npm install
 ```
 
-3. Create/update `.env` (inside `backend`):
+3. Create `.env` file inside `src`
+
+Use this template:
 
 ```env
 PORT=8080
-JWT_SECRET=replace-with-long-random-secret
+JWT_SECRET=replace-with-a-long-random-secret
 NODE_ENV=development
 
-# Local PostgreSQL config
 PGUSER=postgres
 PGHOST=localhost
 PGDATABASE=booking
@@ -99,83 +90,59 @@ PGPASSWORD=postgres
 PGPORT=5432
 ```
 
-You can also use `DATABASE_URL` instead of PG\* variables.
-
-4. Run migration/bootstrap:
+4. Run migration
 
 ```bash
 npm run migrate
 ```
 
-5. Start server:
+5. Start server
 
 ```bash
 npm run dev
 ```
 
-Server runs at `http://localhost:8080` (or your configured `PORT`).
+Server URL:
+http://localhost:8080
 
-## API Endpoints
+## API List
 
-### Health
+- GET /health
+- POST /auth/register
+- POST /auth/login
+- GET /booking/seats
+- POST /booking/book/:seatId (protected)
 
-- `GET /health`
+## Quick Test with cURL
 
-### Auth
-
-- `POST /auth/register`
-- `POST /auth/login`
-
-### Booking
-
-- `GET /booking/seats`
-- `POST /booking/book/:seatId` (protected)
-
-## Quick API Test (cURL)
-
-### 1) Register
+Register:
 
 ```bash
 curl -X POST http://localhost:8080/auth/register \
-   -H "Content-Type: application/json" \
-   -d "{\"name\":\"Alice\",\"email\":\"alice@example.com\",\"password\":\"password123\"}"
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"Alice\",\"email\":\"alice@example.com\",\"password\":\"password123\"}"
 ```
 
-### 2) Login
+Login:
 
 ```bash
 curl -X POST http://localhost:8080/auth/login \
-   -H "Content-Type: application/json" \
-   -d "{\"email\":\"alice@example.com\",\"password\":\"password123\"}"
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"alice@example.com\",\"password\":\"password123\"}"
 ```
 
-Copy `token` from the login response.
-
-### 3) List seats
-
-```bash
-curl http://localhost:8080/booking/seats
-```
-
-### 4) Book seat (protected)
+Book seat (use token from login response):
 
 ```bash
 curl -X POST http://localhost:8080/booking/book/10 \
-   -H "Authorization: Bearer YOUR_JWT_TOKEN"
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-If seat is already booked, API returns `409`.
+## Hackathon Checklist Coverage
 
-## Hackathon Rubric Mapping
-
-- Authentication Implementation: Register/login, bcrypt hashing, JWT issuance
-- Protected Route Handling: Booking route guarded by token middleware
-- Booking Logic Correctness: Row locking, transactional update/insert, duplicate prevention
-- Code Structure and Readability: Layered modules (`auth`, `booking`, `db`)
-- Integration with Existing Codebase: Existing flow retained and extended cleanly
-- Optional Frontend Integration: Not included (backend-first submission)
-
-## Notes
-
-- Starter codebase was used as the base and extended.
-- Frontend is intentionally omitted as optional per track guidance.
+- Authentication implementation: Done
+- Protected routes: Done
+- Booking logic correctness: Done
+- Clean code structure: Done
+- Integration with existing code: Done
+- Frontend: Optional (not included)
