@@ -113,30 +113,72 @@ http://localhost:8080
 - GET /booking/seats
 - POST /booking/book/:seatId (protected)
 
-## Quick Test with cURL
+## Easy API Test (Step by Step)
 
-Register:
+If cURL feels hard, use Postman. It is much easier.
 
-```bash
-curl -X POST http://localhost:8080/auth/register \
-  -H "Content-Type: application/json" \
-  -d "{\"name\":\"Alice\",\"email\":\"alice@example.com\",\"password\":\"password123\"}"
+### Step 1: Check server is running
+
+Open this in browser:
+
+- http://localhost:8080/health
+
+You should see: `{ "status": "ok" }`
+
+### Step 2: Register user (Postman)
+
+1. Open Postman
+2. Method: `POST`
+3. URL: `http://localhost:8080/auth/register`
+4. Go to `Body` -> `raw` -> `JSON`
+5. Paste:
+
+```json
+{
+  "name": "Alice",
+  "email": "alice@example.com",
+  "password": "password123"
+}
 ```
 
-Login:
+6. Click `Send`
 
-```bash
-curl -X POST http://localhost:8080/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{\"email\":\"alice@example.com\",\"password\":\"password123\"}"
+### Step 3: Login user (Postman)
+
+1. Method: `POST`
+2. URL: `http://localhost:8080/auth/login`
+3. Body -> `raw` -> `JSON`
+4. Paste:
+
+```json
+{
+  "email": "alice@example.com",
+  "password": "password123"
+}
 ```
 
-Book seat (use token from login response):
+5. Click `Send`
+6. Copy `token` from response
 
-```bash
-curl -X POST http://localhost:8080/booking/book/10 \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
+### Step 4: Get seats
+
+1. Method: `GET`
+2. URL: `http://localhost:8080/booking/seats`
+3. Click `Send`
+
+### Step 5: Book a seat (Protected API)
+
+1. Method: `POST`
+2. URL: `http://localhost:8080/booking/book/10`
+3. Go to `Headers`
+4. Add:
+
+- Key: `Authorization`
+- Value: `Bearer YOUR_TOKEN_HERE`
+
+5. Click `Send`
+
+If same seat is already booked, you will get status `409`.
 
 ## Hackathon Checklist Coverage
 
